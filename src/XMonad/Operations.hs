@@ -211,9 +211,8 @@ setWMState w v = withDisplay $ \dpy -> do
 -- | Set the border color using the window's color map, if possible,
 -- otherwise fallback to the color in @Pixel@.
 setWindowBorderWithFallback :: Display -> Window -> String -> Pixel -> X ()
-setWindowBorderWithFallback dpy w color basic = io $
-    C.handle fallback $ do
-      wa <- getWindowAttributes dpy w
+setWindowBorderWithFallback dpy w color basic = withWindowAttributes dpy w $ \wa -> do
+    io $ C.handle fallback $ do
       pixel <- color_pixel . fst <$> allocNamedColor dpy (wa_colormap wa) color
       setWindowBorder dpy w pixel
   where
