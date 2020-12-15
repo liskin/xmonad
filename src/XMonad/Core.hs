@@ -1,5 +1,7 @@
 {-# LANGUAGE ExistentialQuantification, FlexibleInstances, GeneralizedNewtypeDeriving,
              MultiParamTypeClasses, TypeSynonymInstances, DeriveDataTypeable #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ViewPatterns #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -192,9 +194,10 @@ catchX :: X a -> X a -> X a
 catchX job errcase = do
     st <- get
     c <- ask
-    (a, s') <- io $ runX c st job `E.catch` \e -> case fromException e of
-                        Just x -> throw e `const` (x `asTypeOf` ExitSuccess)
-                        _ -> do hPrint stderr e; runX c st errcase
+    (a, s') <- io $ runX c st job `E.catch` \case
+        (fromException -> Just e) -> throw (e `asTypeOf` ExitSuccess)
+        (fromException -> Just e) | e == userError "Error in function getWindowAttributes" -> runX c st errcase
+        e -> hPrint stderr e >> runX c st errcase
     put s'
     return a
 
