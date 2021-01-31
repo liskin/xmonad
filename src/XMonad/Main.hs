@@ -37,7 +37,6 @@ import qualified XMonad.StackSet as W
 import XMonad.Operations
 
 import System.IO
-import System.Directory
 import System.Info
 import System.Environment (getArgs, getProgName, withArgs)
 import System.Posix.Process (executeFile)
