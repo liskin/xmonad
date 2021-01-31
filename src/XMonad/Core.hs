@@ -27,7 +27,7 @@ module XMonad.Core (
     runX, catchX, userCode, userCodeDef, io, catchIO, installSignalHandlers, uninstallSignalHandlers,
     withDisplay, withWindowSet, isRoot, runOnWorkspaces,
     getAtom, spawn, spawnPID, xfork, recompile, trace, whenJust, whenX,
-    getXMonadDir, getXMonadCacheDir, getXMonadDataDir, stateFileName,
+    getXMonadDir, getXMonadCacheDir, getXMonadDataDir, stateFileName, sessionStateFileName,
     atom_WM_STATE, atom_WM_PROTOCOLS, atom_WM_DELETE_WINDOW, atom_WM_TAKE_FOCUS, withWindowAttributes,
     ManageHook, Query(..), runQuery, Directories(..), Dirs, getDirs
   ) where
@@ -543,6 +543,18 @@ getXMonadDataDir = asks (dataDir . dirs)
 -- | Get the name of the file used to store the xmonad window state.
 stateFileName :: X FilePath
 stateFileName = (</> "xmonad.state") <$> getXMonadDataDir
+
+-- | Get the name of the file used to store the xmonad state for this session,
+-- if the required XDG_ vars are set.
+sessionStateFileName :: X (Maybe FilePath)
+sessionStateFileName = io $ do
+    run' <- fmap (</> "xmonad") <$> getEnv "XDG_RUNTIME_DIR"
+    sid' <- getEnv "XDG_SESSION_ID"
+    case (run', sid') of
+        (Just run, Just sid) -> do
+            createDirectoryIfMissing True run
+            pure $ Just $ run </> sid <.> "state"
+        _ -> mempty
 
 -- | 'recompile force', recompile the xmonad configuration file when
 -- any of the following apply:
