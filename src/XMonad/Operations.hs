@@ -36,7 +36,7 @@ import qualified Control.Exception as C
 
 import System.IO
 import System.Directory
-import System.FilePath ((</>))
+import System.FilePath ((</>), (<.>))
 import System.Posix.Process (executeFile)
 import Graphics.X11.Xlib
 import Graphics.X11.Xinerama (getScreenInfo)
@@ -482,7 +482,9 @@ writeStateToFile = do
 
     path <- fromMaybe <$> stateFileName <*> sessionStateFileName
     stateData <- gets (\s -> StateFile (wsData s) (extState s))
-    catchIO (writeFile path $ show stateData)
+    catchIO $ do
+        writeFile (path <.> "tmp") $ show stateData
+        renameFile (path <.> "tmp") path
 
 -- | Read the state of a previous xmonad instance from a file and
 -- return that state.  The state file is removed after reading it.
