@@ -232,10 +232,7 @@ launch initxmc drs = do
     allocaXEvent $ \e ->
         runX cf st $ do
             -- check for serialized state in a file.
-            serializedSt <- do
-                path <- stateFileName
-                exists <- io (doesFileExist path)
-                if exists then readStateFile initxmc else return Nothing
+            serializedSt <- readStateFile initxmc
 
             -- restore extensibleState if we read it from a file.
             let extst = maybe M.empty extensibleState serializedSt
