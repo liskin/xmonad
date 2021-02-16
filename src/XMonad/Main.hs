@@ -135,7 +135,7 @@ sendRestart = do
     xmonad_restart <- internAtom dpy "XMONAD_RESTART" False
     allocaXEvent $ \e -> do
         setEventType e clientMessage
-        setClientMessageEvent e rw xmonad_restart 32 0 currentTime
+        setClientMessageEvent e rw xmonad_restart 32 0 0
         sendEvent dpy rw False structureNotifyMask e
     sync dpy False
 
